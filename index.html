@@ -1,0 +1,117 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>WhatsApp Reminder App</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    th { background: #f2f2f2; }
+    input, textarea { width: 95%; padding: 6px; }
+    button { padding: 8px 12px; cursor: pointer; }
+    .save-btn { background: #28a745; color: white; border: none; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h2>WhatsApp Reminder</h2>
+
+  <!-- Input Section -->
+  <table>
+    <tr>
+      <th>Name</th>
+      <th>Number</th>
+      <th>Text</th>
+      <th>Time</th>
+      <th>Action</th>
+    </tr>
+    <tr>
+      <td><input id="name" placeholder="Person's Name"></td>
+      <td><input id="number" placeholder="With country code"></td>
+      <td><textarea id="message" placeholder="Reminder Message"></textarea></td>
+      <td><input type="datetime-local" id="time"></td>
+      <td><button class="save-btn" onclick="saveReminder()">Save</button></td>
+    </tr>
+  </table>
+
+  <h3>Saved Reminders</h3>
+  <table id="remindersTable">
+    <tr>
+      <th>Name</th>
+      <th>Number</th>
+      <th>Text</th>
+      <th>Time</th>
+    </tr>
+  </table>
+
+  <script>
+    let reminders = JSON.parse(localStorage.getItem("reminders")) || [];
+
+    function saveReminder() {
+      const name = document.getElementById("name").value;
+      const number = document.getElementById("number").value;
+      const message = document.getElementById("message").value;
+      const time = document.getElementById("time").value;
+
+      if (!name || !number || !message || !time) {
+        alert("Please fill all fields!");
+        return;
+      }
+
+      reminders.push({ name, number, message, time });
+      localStorage.setItem("reminders", JSON.stringify(reminders));
+      displayReminders();
+
+      // Clear inputs
+      document.getElementById("name").value = "";
+      document.getElementById("number").value = "";
+      document.getElementById("message").value = "";
+      document.getElementById("time").value = "";
+    }
+
+    function displayReminders() {
+      const table = document.getElementById("remindersTable");
+      table.innerHTML = `
+        <tr>
+          <th>Name</th>
+          <th>Number</th>
+          <th>Text</th>
+          <th>Time</th>
+        </tr>
+      `;
+      reminders.forEach(r => {
+        const row = table.insertRow();
+        row.insertCell(0).innerText = r.name;
+        row.insertCell(1).innerText = r.number;
+        row.insertCell(2).innerText = r.message;
+        row.insertCell(3).innerText = r.time;
+      });
+    }
+
+    function checkReminders() {
+      const now = new Date().toISOString().slice(0,16); 
+      reminders.forEach(r => {
+        if (r.time === now) {
+          const url = `https://wa.me/${r.number}/?text=${encodeURIComponent(r.message)}`;
+          if (Notification.permission === "granted") {
+            new Notification("Reminder: " + r.name, { body: r.message })
+              .onclick = () => { window.open(url, "_blank"); };
+          } else {
+            alert(`Reminder for ${r.name}: ${r.message}`);
+            window.open(url, "_blank");
+          }
+        }
+      });
+    }
+
+    setInterval(checkReminders, 30000);
+
+    if (Notification.permission !== "granted") {
+      Notification.requestPermission();
+    }
+
+    displayReminders();
+  </script>
+</body>
+</html>
