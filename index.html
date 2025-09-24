@@ -1,117 +1,151 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>WhatsApp Reminder App</title>
+  <title>SR Reminder™</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-    th { background: #f2f2f2; }
-    input, textarea { width: 95%; padding: 6px; }
-    button { padding: 8px 12px; cursor: pointer; }
-    .save-btn { background: #28a745; color: white; border: none; border-radius: 4px; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f9;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #4CAF50;
+      color: white;
+      padding: 15px;
+      font-size: 22px;
+      text-align: center;
+    }
+    section {
+      padding: 20px;
+    }
+    h2 {
+      color: #333;
+      margin-bottom: 10px;
+    }
+    input, textarea {
+      width: 95%;
+      padding: 10px;
+      margin: 5px 0;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+    button, .btn {
+      display: inline-block;
+      margin: 10px 5px;
+      padding: 10px 15px;
+      background: #4CAF50;
+      color: white;
+      text-decoration: none;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    footer {
+      margin-top: 30px;
+      padding: 15px;
+      background: #222;
+      color: white;
+      font-size: 14px;
+      text-align: center;
+    }
+    .reminder-box {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
   </style>
 </head>
 <body>
-  <h2>WhatsApp Reminder</h2>
 
-  <!-- Input Section -->
-  <table>
-    <tr>
-      <th>Name</th>
-      <th>Number</th>
-      <th>Text</th>
-      <th>Time</th>
-      <th>Action</th>
-    </tr>
-    <tr>
-      <td><input id="name" placeholder="Person's Name"></td>
-      <td><input id="number" placeholder="With country code"></td>
-      <td><textarea id="message" placeholder="Reminder Message"></textarea></td>
-      <td><input type="datetime-local" id="time"></td>
-      <td><button class="save-btn" onclick="saveReminder()">Save</button></td>
-    </tr>
-  </table>
+  <header>
+    SR Reminder™ by SR Techs
+  </header>
 
-  <h3>Saved Reminders</h3>
-  <table id="remindersTable">
-    <tr>
-      <th>Name</th>
-      <th>Number</th>
-      <th>Text</th>
-      <th>Time</th>
-    </tr>
-  </table>
+  <!-- Reminder Section -->
+  <section>
+    <h2>Set a Reminder</h2>
+    <div class="reminder-box">
+      <form id="reminderForm">
+        <input type="text" id="name" placeholder="Enter Name" required><br>
+        <input type="text" id="number" placeholder="Enter Number" required><br>
+        <textarea id="text" placeholder="Enter Reminder Text" required></textarea><br>
+        <input type="time" id="time" required><br>
+        <button type="submit">Save Reminder</button>
+      </form>
+    </div>
+    <div id="output"></div>
+  </section>
+
+  <!-- About App -->
+  <section>
+    <h2>About App</h2>
+    <p><b>SR Reminder™</b> is a simple and smart reminder app designed by 
+       <b>SR Techs</b>. Set reminders, notes, and tasks easily, and get notified on time.</p>
+  </section>
+
+  <!-- More Apps -->
+  <section>
+    <h2>More Apps</h2>
+    <p>Explore more apps by SR Techs:</p>
+    <a href="https://yourusername.github.io/sr-music/" class="btn">SAR MP3 Player</a>
+    <a href="https://yourusername.github.io/sr-splitter/" class="btn">Bill Splitter</a>
+  </section>
+
+  <!-- About Us -->
+  <section>
+    <h2>About Us</h2>
+    <p>We at <b>SR Techs</b> create lightweight, useful, and free apps 
+       for everyone. Our goal is to bring simple tech solutions to daily life.</p>
+  </section>
+
+  <!-- Report Problem -->
+  <section>
+    <h2>Report a Problem</h2>
+    <p>If you face any issues, report them here:</p>
+    <a href="mailto:srtechs.help@gmail.com" class="btn">Report / Contact</a>
+  </section>
+
+  <footer>
+    © 2025 SR Techs™ | All Rights Reserved
+  </footer>
 
   <script>
-    let reminders = JSON.parse(localStorage.getItem("reminders")) || [];
+    document.getElementById("reminderForm").addEventListener("submit", function(e){
+      e.preventDefault();
+      let name = document.getElementById("name").value;
+      let number = document.getElementById("number").value;
+      let text = document.getElementById("text").value;
+      let time = document.getElementById("time").value;
 
-    function saveReminder() {
-      const name = document.getElementById("name").value;
-      const number = document.getElementById("number").value;
-      const message = document.getElementById("message").value;
-      const time = document.getElementById("time").value;
+      // Save locally
+      let reminder = {name, number, text, time};
+      let saved = JSON.parse(localStorage.getItem("reminders")) || [];
+      saved.push(reminder);
+      localStorage.setItem("reminders", JSON.stringify(saved));
 
-      if (!name || !number || !message || !time) {
-        alert("Please fill all fields!");
-        return;
-      }
+      document.getElementById("output").innerHTML += 
+        `<p><b>${name}</b> (${number}) - "${text}" at ${time}</p>`;
+      
+      alert("Reminder saved!");
+      document.getElementById("reminderForm").reset();
+    });
 
-      reminders.push({ name, number, message, time });
-      localStorage.setItem("reminders", JSON.stringify(reminders));
-      displayReminders();
-
-      // Clear inputs
-      document.getElementById("name").value = "";
-      document.getElementById("number").value = "";
-      document.getElementById("message").value = "";
-      document.getElementById("time").value = "";
-    }
-
-    function displayReminders() {
-      const table = document.getElementById("remindersTable");
-      table.innerHTML = `
-        <tr>
-          <th>Name</th>
-          <th>Number</th>
-          <th>Text</th>
-          <th>Time</th>
-        </tr>
-      `;
-      reminders.forEach(r => {
-        const row = table.insertRow();
-        row.insertCell(0).innerText = r.name;
-        row.insertCell(1).innerText = r.number;
-        row.insertCell(2).innerText = r.message;
-        row.insertCell(3).innerText = r.time;
+    // Load saved reminders
+    window.onload = function() {
+      let saved = JSON.parse(localStorage.getItem("reminders")) || [];
+      saved.forEach(r => {
+        document.getElementById("output").innerHTML += 
+          `<p><b>${r.name}</b> (${r.number}) - "${r.text}" at ${r.time}</p>`;
       });
     }
-
-    function checkReminders() {
-      const now = new Date().toISOString().slice(0,16); 
-      reminders.forEach(r => {
-        if (r.time === now) {
-          const url = `https://wa.me/${r.number}/?text=${encodeURIComponent(r.message)}`;
-          if (Notification.permission === "granted") {
-            new Notification("Reminder: " + r.name, { body: r.message })
-              .onclick = () => { window.open(url, "_blank"); };
-          } else {
-            alert(`Reminder for ${r.name}: ${r.message}`);
-            window.open(url, "_blank");
-          }
-        }
-      });
-    }
-
-    setInterval(checkReminders, 30000);
-
-    if (Notification.permission !== "granted") {
-      Notification.requestPermission();
-    }
-
-    displayReminders();
   </script>
+
 </body>
 </html>
+
