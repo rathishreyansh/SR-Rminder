@@ -2,150 +2,133 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SR Reminder™</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f4f4f9;
+      background-color: #f8f9fa;
       margin: 0;
-      padding: 0;
-    }
-    header {
-      background: #4CAF50;
-      color: white;
-      padding: 15px;
-      font-size: 22px;
-      text-align: center;
-    }
-    section {
       padding: 20px;
     }
-    h2 {
-      color: #333;
-      margin-bottom: 10px;
+    h1 {
+      text-align: center;
+      color: #0d6efd;
     }
-    input, textarea {
-      width: 95%;
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
       padding: 10px;
-      margin: 5px 0;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 14px;
-    }
-    button, .btn {
-      display: inline-block;
-      margin: 10px 5px;
-      padding: 10px 15px;
-      background: #4CAF50;
-      color: white;
-      text-decoration: none;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 14px;
-    }
-    footer {
-      margin-top: 30px;
-      padding: 15px;
-      background: #222;
-      color: white;
-      font-size: 14px;
+      border: 1px solid #dee2e6;
       text-align: center;
     }
-    .reminder-box {
-      background: white;
-      padding: 15px;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      margin-bottom: 20px;
+    th {
+      background-color: #0d6efd;
+      color: white;
     }
+    input[type="text"], input[type="number"], input[type="time"] {
+      width: 90%;
+      padding: 5px;
+    }
+    button {
+      padding: 5px 10px;
+      margin: 2px;
+      border: none;
+      color: white;
+      cursor: pointer;
+    }
+    .save { background-color: #198754; }
+    .later { background-color: #ffc107; color: black; }
+    .delete { background-color: #dc3545; }
   </style>
 </head>
 <body>
+  <h1>SR Reminder™</h1>
 
-  <header>
-    SR Reminder™ by SR Techs
-  </header>
+  <table id="reminderTable">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Number</th>
+        <th>Text</th>
+        <th>Time</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Reminders will be injected here -->
+    </tbody>
+  </table>
 
-  <!-- Reminder Section -->
-  <section>
-    <h2>Set a Reminder</h2>
-    <div class="reminder-box">
-      <form id="reminderForm">
-        <input type="text" id="name" placeholder="Enter Name" required><br>
-        <input type="text" id="number" placeholder="Enter Number" required><br>
-        <textarea id="text" placeholder="Enter Reminder Text" required></textarea><br>
-        <input type="time" id="time" required><br>
-        <button type="submit">Save Reminder</button>
-      </form>
-    </div>
-    <div id="output"></div>
-  </section>
-
-  <!-- About App -->
-  <section>
-    <h2>About App</h2>
-    <p><b>SR Reminder™</b> is a simple and smart reminder app designed by 
-       <b>SR Techs</b>. Set reminders, notes, and tasks easily, and get notified on time.</p>
-  </section>
-
-  <!-- More Apps -->
-  <section>
-    <h2>More Apps</h2>
-    <p>Explore more apps by SR Techs:</p>
-    <a href="https://yourusername.github.io/sr-music/" class="btn">SAR MP3 Player</a>
-    <a href="https://yourusername.github.io/sr-splitter/" class="btn">Bill Splitter</a>
-  </section>
-
-  <!-- About Us -->
-  <section>
-    <h2>About Us</h2>
-    <p>We at <b>SR Techs</b> create lightweight, useful, and free apps 
-       for everyone. Our goal is to bring simple tech solutions to daily life.</p>
-  </section>
-
-  <!-- Report Problem -->
-  <section>
-    <h2>Report a Problem</h2>
-    <p>If you face any issues, report them here:</p>
-    <a href="mailto:srtechs.help@gmail.com" class="btn">Report / Contact</a>
-  </section>
-
-  <footer>
-    © 2025 SR Techs™ | All Rights Reserved
-  </footer>
+  <h2>Add New Reminder</h2>
+  <form id="reminderForm">
+    <input type="text" id="name" placeholder="Name" required>
+    <input type="number" id="number" placeholder="Phone Number" required>
+    <input type="text" id="text" placeholder="Message" required>
+    <input type="time" id="time" required>
+    <button type="submit" class="save">Save</button>
+  </form>
 
   <script>
-    document.getElementById("reminderForm").addEventListener("submit", function(e){
-      e.preventDefault();
-      let name = document.getElementById("name").value;
-      let number = document.getElementById("number").value;
-      let text = document.getElementById("text").value;
-      let time = document.getElementById("time").value;
+    const form = document.getElementById('reminderForm');
+    const tableBody = document.querySelector('#reminderTable tbody');
 
-      // Save locally
-      let reminder = {name, number, text, time};
-      let saved = JSON.parse(localStorage.getItem("reminders")) || [];
-      saved.push(reminder);
-      localStorage.setItem("reminders", JSON.stringify(saved));
+    // Load reminders from localStorage
+    let reminders = JSON.parse(localStorage.getItem('reminders') || '[]');
 
-      document.getElementById("output").innerHTML += 
-        `<p><b>${name}</b> (${number}) - "${text}" at ${time}</p>`;
-      
-      alert("Reminder saved!");
-      document.getElementById("reminderForm").reset();
-    });
-
-    // Load saved reminders
-    window.onload = function() {
-      let saved = JSON.parse(localStorage.getItem("reminders")) || [];
-      saved.forEach(r => {
-        document.getElementById("output").innerHTML += 
-          `<p><b>${r.name}</b> (${r.number}) - "${r.text}" at ${r.time}</p>`;
+    function renderTable() {
+      tableBody.innerHTML = '';
+      reminders.forEach((r, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${r.name}</td>
+          <td>${r.number}</td>
+          <td>${r.text}</td>
+          <td>${r.time}</td>
+          <td>
+            <button class="later" onclick="later(${index})">Later</button>
+            <button class="delete" onclick="deleteReminder(${index})">Delete</button>
+          </td>
+        `;
+        tableBody.appendChild(row);
       });
     }
-  </script>
 
+    function saveReminders() {
+      localStorage.setItem('reminders', JSON.stringify(reminders));
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const newReminder = {
+        name: document.getElementById('name').value,
+        number: document.getElementById('number').value,
+        text: document.getElementById('text').value,
+        time: document.getElementById('time').value
+      };
+      reminders.push(newReminder);
+      saveReminders();
+      renderTable();
+      form.reset();
+    });
+
+    function deleteReminder(index) {
+      reminders.splice(index, 1);
+      saveReminders();
+      renderTable();
+    }
+
+    function later(index) {
+      alert(`Reminder for ${reminders[index].name} is postponed!`);
+    }
+
+    // Initial render
+    renderTable();
+  </script>
 </body>
 </html>
+
 
